@@ -1,0 +1,7 @@
+CREATE OR REPLACE TRIGGER OrderTrigger
+BEFORE INSERT ON Orders
+FOR EACH ROW
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('New Order is being inserted.');
+END;
+/
