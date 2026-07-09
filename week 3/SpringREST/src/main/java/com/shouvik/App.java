@@ -29,6 +29,23 @@ public class App {
         return new Student(id, name, "B.Tech AI");
     }
 
+    @PostMapping("/student")
+    public Student addStudent(@RequestBody Student student) {
+        return student;
+    }
+
+    @PutMapping("/student/{id}")
+    public Student updateStudent(@PathVariable int id,
+                                 @RequestBody Student student) {
+        student.setId(id);
+        return student;
+    }
+
+    @DeleteMapping("/student/{id}")
+    public String deleteStudent(@PathVariable int id) {
+        return "Student with ID " + id + " deleted successfully!";
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
     }
