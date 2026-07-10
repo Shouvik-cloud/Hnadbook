@@ -1,5 +1,6 @@
 package com.shouvik;
 
+import jakarta.validation.Valid;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
@@ -30,15 +31,20 @@ public class App {
     }
 
     @PostMapping("/student")
-    public Student addStudent(@RequestBody Student student) {
+    public Student addStudent(@Valid @RequestBody Student student) {
         return student;
     }
 
     @PutMapping("/student/{id}")
     public Student updateStudent(@PathVariable int id,
-                                 @RequestBody Student student) {
+                                 @Valid @RequestBody Student student) {
         student.setId(id);
         return student;
+    }
+
+    @DeleteMapping("/student/{id}")
+    public String deleteStudent(@PathVariable int id) {
+        return "Student deleted successfully. ID: " + id;
     }
 
     @GetMapping("/student/error/{id}")
