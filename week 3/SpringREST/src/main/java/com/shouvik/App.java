@@ -41,9 +41,14 @@ public class App {
         return student;
     }
 
-    @DeleteMapping("/student/{id}")
-    public String deleteStudent(@PathVariable int id) {
-        return "Student with ID " + id + " deleted successfully!";
+    @GetMapping("/student/error/{id}")
+    public Student getStudentError(@PathVariable int id) {
+
+        if (id != 101) {
+            throw new StudentNotFoundException("Student not found with id: " + id);
+        }
+
+        return new Student(101, "Shouvik Mondal", "B.Tech AI");
     }
 
     public static void main(String[] args) {
