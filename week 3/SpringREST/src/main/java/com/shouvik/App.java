@@ -3,6 +3,9 @@ package com.shouvik;
 import jakarta.validation.Valid;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @SpringBootApplication
@@ -14,47 +17,62 @@ public class App {
         return "Welcome to Spring Boot!";
     }
 
-    @GetMapping("/student")
-    public Student student() {
-        return new Student(101, "Shouvik Mondal", "B.Tech AI");
+    @GetMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Student> student() {
+        Student student = new Student(101, "Shouvik Mondal", "B.Tech AI");
+        return ResponseEntity.ok(student);
     }
 
     @GetMapping("/student/{id}")
-    public Student getStudent(@PathVariable int id) {
-        return new Student(id, "Shouvik Mondal", "B.Tech AI");
+    public ResponseEntity<Student> getStudent(@PathVariable int id) {
+        Student student = new Student(id, "Shouvik Mondal", "B.Tech AI");
+        return ResponseEntity.ok(student);
     }
 
     @GetMapping("/search")
-    public Student searchStudent(@RequestParam int id,
-                                 @RequestParam String name) {
-        return new Student(id, name, "B.Tech AI");
+    public ResponseEntity<Student> searchStudent(@RequestParam int id,
+                                                 @RequestParam String name) {
+        Student student = new Student(id, name, "B.Tech AI");
+        return ResponseEntity.ok(student);
     }
 
-    @PostMapping("/student")
-    public Student addStudent(@Valid @RequestBody Student student) {
-        return student;
+    @PostMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Student> addStudent(@Valid @RequestBody Student student) {
+        return new ResponseEntity<>(student, HttpStatus.CREATED);
     }
 
     @PutMapping("/student/{id}")
-    public Student updateStudent(@PathVariable int id,
-                                 @RequestBody Student student) {
+    public ResponseEntity<Student> updateStudent(@PathVariable int id,
+                                                 @RequestBody Student student) {
         student.setId(id);
-        return student;
+        return ResponseEntity.ok(student);
     }
 
     @DeleteMapping("/student/{id}")
-    public String deleteStudent(@PathVariable int id) {
-        return "Student with ID " + id + " deleted successfully!";
+    public ResponseEntity<String> deleteStudent(@PathVariable int id) {
+        return ResponseEntity.ok("Student with ID " + id + " deleted successfully!");
     }
 
     @GetMapping("/student/error/{id}")
-    public Student getStudentError(@PathVariable int id) {
+    public ResponseEntity<Student> getStudentError(@PathVariable int id) {
 
         if (id != 101) {
             throw new StudentNotFoundException("Student not found with id: " + id);
         }
 
-        return new Student(101, "Shouvik Mondal", "B.Tech AI");
+        Student student = new Student(101, "Shouvik Mondal", "B.Tech AI");
+        return ResponseEntity.ok(student);
+    }
+
+    @GetMapping("/header")
+    public ResponseEntity<String> getHeader(
+            @RequestHeader(value = "User-Agent", required = false) String userAgent) {
+
+        if (userAgent == null) {
+            userAgent = "Unknown";
+        }
+
+        return ResponseEntity.ok("User-Agent: " + userAgent);
     }
 
     public static void main(String[] args) {
