@@ -37,14 +37,14 @@ public class App {
 
     @PutMapping("/student/{id}")
     public Student updateStudent(@PathVariable int id,
-                                 @Valid @RequestBody Student student) {
+                                 @RequestBody Student student) {
         student.setId(id);
         return student;
     }
 
     @DeleteMapping("/student/{id}")
     public String deleteStudent(@PathVariable int id) {
-        return "Student deleted successfully. ID: " + id;
+        return "Student with ID " + id + " deleted successfully!";
     }
 
     @GetMapping("/student/error/{id}")
