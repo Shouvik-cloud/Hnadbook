@@ -1,78 +1,90 @@
 package com.shouvik;
 
-import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @SpringBootApplication
 @RestController
 public class App {
+
+    @Autowired
+    private StudentRepository repository;
 
     @GetMapping("/")
     public String home() {
         return "Welcome to Spring Boot!";
     }
 
-    @GetMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Student> student() {
-        Student student = new Student(101, "Shouvik Mondal", "B.Tech AI");
-        return ResponseEntity.ok(student);
+    @PostMapping("/student")
+    public ResponseEntity<Student> addStudent(@RequestBody Student student) {
+        Student savedStudent = repository.save(student);
+        return new ResponseEntity<>(savedStudent, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/student")
+    public List<Student> getAllStudents() {
+        return repository.findAll();
+    }
+
+    @GetMapping("/student/page/{page}/{size}")
+    public Page<Student> getStudentsByPage(@PathVariable int page,
+                                           @PathVariable int size) {
+        return repository.findAll(PageRequest.of(page, size));
+    }
+
+    @GetMapping("/student/sort/{field}")
+    public List<Student> sortStudents(@PathVariable String field) {
+        return repository.findAll(Sort.by(field));
+    }
+
+    @GetMapping("/student/name/{name}")
+    public List<Student> getStudentByName(@PathVariable String name) {
+        return repository.findByName(name);
+    }
+
+    @GetMapping("/student/course/{course}")
+    public List<Student> getStudentByCourse(@PathVariable String course) {
+        return repository.findByCourse(course);
+    }
+
+    @GetMapping("/student/query/{course}")
+    public List<Student> getStudentsUsingQuery(@PathVariable String course) {
+        return repository.getStudentsByCourse(course);
+    }
+
+    @GetMapping("/student/native/{course}")
+    public List<Student> getStudentsUsingNativeQuery(@PathVariable String course) {
+        return repository.getStudentsByCourseNative(course);
     }
 
     @GetMapping("/student/{id}")
     public ResponseEntity<Student> getStudent(@PathVariable int id) {
-        Student student = new Student(id, "Shouvik Mondal", "B.Tech AI");
-        return ResponseEntity.ok(student);
-    }
+        Student student = repository.findById(id)
+                .orElseThrow(() -> new StudentNotFoundException("Student not found with id: " + id));
 
-    @GetMapping("/search")
-    public ResponseEntity<Student> searchStudent(@RequestParam int id,
-                                                 @RequestParam String name) {
-        Student student = new Student(id, name, "B.Tech AI");
         return ResponseEntity.ok(student);
-    }
-
-    @PostMapping(value = "/student", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Student> addStudent(@Valid @RequestBody Student student) {
-        return new ResponseEntity<>(student, HttpStatus.CREATED);
     }
 
     @PutMapping("/student/{id}")
-    public ResponseEntity<Student> updateStudent(@PathVariable int id,
-                                                 @RequestBody Student student) {
+    public ResponseEntity<Student> updateStudent(@PathVariable int id, @RequestBody Student student) {
         student.setId(id);
-        return ResponseEntity.ok(student);
+        Student updatedStudent = repository.save(student);
+        return ResponseEntity.ok(updatedStudent);
     }
 
     @DeleteMapping("/student/{id}")
     public ResponseEntity<String> deleteStudent(@PathVariable int id) {
-        return ResponseEntity.ok("Student with ID " + id + " deleted successfully!");
-    }
-
-    @GetMapping("/student/error/{id}")
-    public ResponseEntity<Student> getStudentError(@PathVariable int id) {
-
-        if (id != 101) {
-            throw new StudentNotFoundException("Student not found with id: " + id);
-        }
-
-        Student student = new Student(101, "Shouvik Mondal", "B.Tech AI");
-        return ResponseEntity.ok(student);
-    }
-
-    @GetMapping("/header")
-    public ResponseEntity<String> getHeader(
-            @RequestHeader(value = "User-Agent", required = false) String userAgent) {
-
-        if (userAgent == null) {
-            userAgent = "Unknown";
-        }
-
-        return ResponseEntity.ok("User-Agent: " + userAgent);
+        repository.deleteById(id);
+        return ResponseEntity.ok("Student deleted successfully!");
     }
 
     public static void main(String[] args) {
